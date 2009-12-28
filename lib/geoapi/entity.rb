@@ -1,7 +1,7 @@
 module GeoAPI
   class Entity < GeoAPI::GeoObject
     
-    attr_accessor  :guid, :name, :entity_type, :geom, :url, :latitude, :longitude, :views, :userviews, :raw_json, :errors, :shorturl
+    attr_accessor  :guid, :name, :entity_type, :geom, :url, :latitude, :longitude, :views, :userviews, :raw_json, :errors, :shorturl, :raw_json
     
     alias_method :lat, :latitude 
     alias_method :lon, :longitude
@@ -77,8 +77,6 @@ module GeoAPI
           rescue
             raise BadRequest, "There was a problem communicating with the API"
           end
-          
-          raise ArgumentError, "Arguments should include a :guid" if params[:guid].blank?
         
           results = Entity.new(response['result'].merge({'guid'=>params[:guid]})) unless response['result'].blank? #the api doesn't return a guid in json?!
       end
@@ -91,9 +89,11 @@ module GeoAPI
       self.find(:get, :guid=>"user-#{GeoAPI::API_KEY}-#{the_id}")
     end
     
+    
+    
+    
     # Instance methods
     def initialize(attrs)
-      
       self.guid = attrs['guid'] unless attrs['guid'].blank?
       self.guid = "user-#{GeoAPI::API_KEY}-#{attrs['id']}" unless attrs['id'].blank?
       self.errors = attrs['error']
@@ -101,7 +101,13 @@ module GeoAPI
       self.entity_type = attrs['type']
       self.geom = GeoAPI::Geometry.from_hash(attrs['geom'])
       self.views = attrs['views']
-      self.userviews = attrs['userviews']
+      
+      self.userviews = []
+      if attrs['userviews'].size > 0
+        attrs['userviews'].each do |view|
+          self.userviews << GeoAPI::View.new({:name=>view, :guid=>self.guid})
+        end
+      end
       self.shorturl = attrs['shorturl']
 
       self

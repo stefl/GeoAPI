@@ -30,9 +30,12 @@ module GeoAPI
   class NotAcceptable        < StandardError; end
 end
 
-require File.dirname(__FILE__) + '/geoapi/geo_object' 
-require File.dirname(__FILE__) + '/geoapi/geometry' 
-require File.dirname(__FILE__) + '/geoapi/version'
-require File.dirname(__FILE__) + '/geoapi/entity'
-require File.dirname(__FILE__) + '/geoapi/view'
-require File.dirname(__FILE__) + '/geoapi/query'
+
+dir = Pathname(__FILE__).dirname.expand_path.to_s
+
+require dir + '/geoapi/geo_object' 
+require dir + '/geoapi/geometry' 
+require dir + '/geoapi/version'
+require dir + '/geoapi/entity'
+require dir + '/geoapi/view'
+require dir + '/geoapi/query'
