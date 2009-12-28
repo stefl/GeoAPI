@@ -36,6 +36,13 @@ module GeoAPI
       self.guid = attrs['guid']
       self.view_type = attrs['type']
       
+      self.entries = []
+      if attrs['entries'].size > 0
+        attrs['entries'].each do |entry|
+          self.entries << GeoAPI::Entry.new({:properties=>entry})  
+        end
+        self.entries.reverse!
+      end
     end
     
     
