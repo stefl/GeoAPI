@@ -14,6 +14,7 @@ Gem::Specification.new do |s|
 		"geoapi.gemspec", 
 		"lib/geoapi.rb",
 		"lib/geoapi/geo_object.rb",
+		"lib/geoapi/geometry.rb",
 		"lib/geoapi/query.rb",
 		"lib/geoapi/entity.rb",
 		"lib/geoapi/view.rb",
@@ -21,7 +22,9 @@ Gem::Specification.new do |s|
 	]
   
   s.add_dependency("rest-client",   [">= 0.9"])
-  s.add_dependency("json", [">= 1.1.3"])
+  s.add_dependency("crack")
+  s.add_dependency("httparty")
+
   
   s.has_rdoc = false
   s.rdoc_options = ["--main", "README.rdoc"]

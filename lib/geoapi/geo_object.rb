@@ -4,9 +4,14 @@ module GeoAPI
     include HTTParty
     
     format :json
-  
+    
+    class << self
+      attr_accessor :apikey
+    end
+    
+    default_params :apikey => GeoAPI::API_KEY
     base_uri GeoAPI::API_URL
-    default_params :apikey => GeoAPI.apikey
+    
     
   end
   
