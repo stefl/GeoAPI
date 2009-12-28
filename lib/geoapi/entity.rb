@@ -115,6 +115,11 @@ module GeoAPI
     
     # Instance methods
     def initialize(attrs)
+      setup(attrs)
+    end
+    
+    def setup(attrs)
+    
       self.guid = attrs['guid'] unless attrs['guid'].blank?
       self.guid = "user-#{GeoAPI::API_KEY}-#{attrs['id']}" unless attrs['id'].blank?
       self.errors = attrs['error']
@@ -166,6 +171,7 @@ module GeoAPI
       end
 
       self
+    
     end
       
     def type #type is a reserved word
@@ -173,7 +179,24 @@ module GeoAPI
     end
     
     def update
-      self.initialize(post("/e/#{guid}"))
+      self.setup(post("/e/#{guid}"))
+    end
+    
+    def load
+      raise ArgumentError, "Properties should include a .guid or .id" if self.guid.blank? && self.id.blank?
+      
+      the_guid = self.guid
+      the_guid ||= "user-#{GeoAPI::API_KEY}-#{self.id}"
+      
+      begin
+        response = self.class.get("/e/#{the_guid}")
+      rescue
+        raise BadRequest, "There was a problem communicating with the API"
+      end
+            
+      self.setup(response['result'].merge({'guid'=>self.guid })) 
+      
+      self
     end
     
     def delete

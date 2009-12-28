@@ -84,7 +84,7 @@ module GeoAPI
     
       entries = {'entries' => response['result']} # There are no entries in this view
         
-      self.setup(entries.merge({'guid'=>self.guid, 'name'=>self.name, })) 
+      self.setup(entries.merge({'guid'=>self.guid, 'name'=>self.name })) 
       
       self
     end
