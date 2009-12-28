@@ -1,7 +1,9 @@
 module GeoAPI
-  class View
+  class View < GeoAPI::GeoObject
     
     attr_accessor :name, :guid, :view_type
+    
+    @path_prefix = "view"
     
     # Class methods
     def self.find(*args)
@@ -17,7 +19,8 @@ module GeoAPI
       raise ArgumentError, "Arguments should include a view :name" if params[:name].blank?
       
       begin
-        response = get("/e/#{params[:guid]}/#{params[:name]}")
+        debugger
+        response = get("/e/#{params[:guid]}/#{path_prefix}/#{params[:name]}")
       rescue
         raise BadRequest, "There was a problem communicating with the API"
       end
@@ -29,8 +32,15 @@ module GeoAPI
     
     # Instance methods
     def initialize attrs
+      self.name = attrs['name']
+      self.guid = attrs['guid']
+      self.view_type = attrs['type']
       
     end
+    
+    def to_json options=nil
+      {:name=>name, :guid=>guid, :type=>view_type}.to_json
+    end
   end
-  
+
 end

@@ -7,7 +7,7 @@ module GeoAPI
     alias_method :lon, :longitude
     alias_method :geometry, :geom
 
-
+    
     # Class methods
     
     
@@ -99,16 +99,24 @@ module GeoAPI
       self.errors = attrs['error']
       self.name = attrs['name']
       self.entity_type = attrs['type']
+      self.shorturl = attrs['shorturl']
+      
       self.geom = GeoAPI::Geometry.from_hash(attrs['geom'])
-      self.views = attrs['views']
+      
+      self.views = []
+      if attrs['views'].size > 0
+        attrs['views'].each do |view|
+          self.views << GeoAPI::View.new({:name=>view, :guid=>self.guid})
+        end
+      end
       
       self.userviews = []
       if attrs['userviews'].size > 0
         attrs['userviews'].each do |view|
-          self.userviews << GeoAPI::View.new({:name=>view, :guid=>self.guid})
+          self.userviews << GeoAPI::UserView.new({:name=>view, :guid=>self.guid})
         end
       end
-      self.shorturl = attrs['shorturl']
+      
 
       self
     end
