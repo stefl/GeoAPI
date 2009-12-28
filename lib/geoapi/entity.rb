@@ -25,7 +25,6 @@ module GeoAPI
       pp post_url
       
       begin
-        debugger
         results = Entity.post(post_url, {:body=> params.to_json}) 
       rescue
         raise BadRequest, "There was a problem communicating with the API"
@@ -142,6 +141,7 @@ module GeoAPI
               end
             
               define_method :"#{view}_entries" do
+                #todo needs caching here
                 find_view("#{view}").entries
               end
             end
