@@ -19,11 +19,16 @@ module GeoAPI
       raise ArgumentError, "A geometry is required (pass :geom in parameters)" unless params.has_key?(:geom)
       
       post_url = "/e" 
-      post_url << "/user-#{GeoAPI::API_KEY}-#{params[:id]}" unless params[:id].blank?
-      puts post_url
+      post_url = "/e/user-#{GeoAPI::API_KEY}-#{params[:id]}" unless params[:id].blank?
+      post_url = "/e/#{params[:guid]}" unless params[:guid].blank?
+
+      pp post_url
       
-      results = Entity.post(post_url, {:body=> params.to_json})
-      debugger
+      begin
+        results = Entity.post(post_url, {:body=> params.to_json}) 
+      rescue
+        raise BadRequest, "There was a problem communicating with the API"
+      end
       raise BadRequest, results['error'] unless results['error'].blank?
       
       #todo the result does not contain the guid, so merge it back in. Possible point of failure here?
@@ -31,14 +36,18 @@ module GeoAPI
     end
     
     def self.destroy(params)
-      raise ArgumentError, "A name is required (pass :name in parameters)"  unless params.has_key?(:id) || params.has_key?(:guid)      
-      debugger
-      unless params[:guid].blank?
-        delete("/e/#{params[:guid]}") 
-      else
-        delete("/e/user-#{GeoAPI::API_KEY}-#{params[:guid]}") unless params[:id].blank?
-      end
+      raise ArgumentError, "An id or guid is required (pass :id or :guid in parameters)"  unless params.has_key?(:id) || params.has_key?(:guid)      
       
+      begin
+        unless params[:guid].blank?
+          delete("/e/#{params[:guid]}") 
+        else
+          delete("/e/user-#{GeoAPI::API_KEY}-#{params[:guid]}") unless params[:id].blank?
+        end
+      
+      rescue
+        raise BadRequest, "There was a problem communicating with the API"
+      end
     end
     
     def self.create_at_lat_lng(params, lat, lng)
@@ -63,8 +72,12 @@ module GeoAPI
           results = nil
           raise ArgumentError, "Arguments should include a :guid" if params[:guid].blank?
         
-          response = get("/e/#{params[:guid]}")
-        
+          begin
+            response = get("/e/#{params[:guid]}")
+          rescue
+            raise BadRequest, "There was a problem communicating with the API"
+          end
+          
           raise ArgumentError, "Arguments should include a :guid" if params[:guid].blank?
         
           results = Entity.new(response['result'].merge({'guid'=>params[:guid]})) unless response['result'].blank? #the api doesn't return a guid in json?!
@@ -81,7 +94,8 @@ module GeoAPI
     # Instance methods
     def initialize(attrs)
       
-      self.guid = attrs['guid'] 
+      self.guid = attrs['guid'] unless attrs['guid'].blank?
+      self.guid = "user-#{GeoAPI::API_KEY}-#{attrs['id']}" unless attrs['id'].blank?
       self.errors = attrs['error']
       self.name = attrs['name']
       self.entity_type = attrs['type']
@@ -103,7 +117,12 @@ module GeoAPI
     
     def delete
       raise ArgumentError, "Object has no :guid" if self.guid.blank?
-      Entity.destroy(:guid=>self.guid)
+      begin
+        Entity.destroy(:guid=>self.guid)
+      rescue
+        raise BadRequest, "There was a problem communicating with the API"
+      end
+      
     end
     
     def destroy
