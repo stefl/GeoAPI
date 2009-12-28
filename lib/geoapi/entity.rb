@@ -25,6 +25,7 @@ module GeoAPI
       pp post_url
       
       begin
+        debugger
         results = Entity.post(post_url, {:body=> params.to_json}) 
       rescue
         raise BadRequest, "There was a problem communicating with the API"
@@ -91,6 +92,10 @@ module GeoAPI
       self.find(:get, :guid=>"user-#{GeoAPI::API_KEY}-#{the_id}")
     end
     
+    def self.find_by_guid(the_guid)
+      self.find(:get, :guid=>the_guid)
+    end
+    
     
     
     
@@ -109,8 +114,18 @@ module GeoAPI
       unless attrs['views'].blank?
         if attrs['views'].size > 0
           attrs['views'].each do |view|
-            self.views << GeoAPI::View.new({:name=>view, :guid=>self.guid})
-          end
+            self.views << GeoAPI::View.new({'name'=>view, 'guid'=>self.guid})
+            
+            # Dynamically create methods like twitter_view
+            
+             (class <<self; self; end).send :define_method, :"#{view}_view" do
+                find_view("#{view}")
+              end
+
+              (class <<self; self; end).send :define_method, :"#{view}_view_entries" do
+                find_view_entries("#{view}")
+              end
+          end   
         end
       end
       
@@ -118,7 +133,19 @@ module GeoAPI
       unless attrs['userviews'].blank?
         if attrs['userviews'].size > 0
           attrs['userviews'].each do |view|
-            self.userviews << GeoAPI::UserView.new({:name=>view, :guid=>self.guid})
+            self.userviews << GeoAPI::UserView.new({'name'=>view, 'guid'=>self.guid})
+            
+            # Dynamically create methods like myapp_userview
+            class << self
+              define_method "#{view}_userview" do
+                find_view("#{view}")
+              end
+            
+              define_method :"#{view}_entries" do
+                find_view("#{view}").entries
+              end
+            end
+            
           end
         end
       end
@@ -158,6 +185,18 @@ module GeoAPI
     
     def to_json options=nil
       {:name=>name, :guid=>guid, :type=>entity_type, :geom=>geom, :views=>views, :userviews=>userviews, :shorturl=>shorturl}.to_json
+    end
+    
+    # Common facility methods
+    
+    def find_view view_name
+      views.each do |view|
+        return view if view.name == view_name
+      end
+    end
+    
+    def find_view_entries view_name
+      find_view(view_name).load.entries
     end
     
   end

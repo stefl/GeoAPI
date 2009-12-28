@@ -3,5 +3,8 @@ module GeoAPI
     
     attr_accessor :properties
     
+    def initialize attrs
+      self.properties = attrs['properties']
+    end
   end
 end

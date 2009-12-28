@@ -17,6 +17,7 @@ Gem::Specification.new do |s|
 		"lib/geoapi/geometry.rb",
 		"lib/geoapi/query.rb",
 		"lib/geoapi/entity.rb",
+		"lib/geoapi/entry.rb",
 		"lib/geoapi/view.rb",
 		"lib/geoapi/user_view.rb",
 		"lib/geoapi/version.rb"

@@ -1,5 +1,11 @@
 module GeoAPI
   class UserView < GeoAPI::View
-    @path_prefix = "userview"
+    class << self
+      @@path_prefix = GeoAPI::USERVIEW_PATH_PREFIX
+    end
+    
+    def initialize attrs
+      super attrs
+    end
   end
 end
