@@ -13,6 +13,7 @@ Gem::Specification.new do |s|
 		"LICENSE",
 		"geoapi.gemspec", 
 		"lib/geoapi.rb",
+		"lib/geoapi/geo_object.rb",
 		"lib/geoapi/query.rb",
 		"lib/geoapi/entity.rb",
 		"lib/geoapi/view.rb",
