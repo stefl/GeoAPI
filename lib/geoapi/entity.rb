@@ -1,7 +1,7 @@
 module GeoAPI
   class Entity < GeoAPI::GeoObject
     
-    attr_accessor  :guid, :name, :entity_type, :geom, :url, :latitude, :longitude, :views, :userviews, :raw_json, :errors, :shorturl, :raw_json
+    attr_accessor  :guid, :id, :name, :entity_type, :geom, :url, :latitude, :longitude, :views, :userviews, :raw_json, :errors, :shorturl, :raw_json
     
     alias_method :lat, :latitude 
     alias_method :lon, :longitude
@@ -70,8 +70,10 @@ module GeoAPI
           results = []
         else
           results = nil
-          raise ArgumentError, "Arguments should include a :guid" if params[:guid].blank?
+          raise ArgumentError, "Arguments should include a :guid or :id" if params[:guid].blank? && params[:id].blank?
         
+          params[:guid]=>"user-#{GeoAPI::API_KEY}-#{the_id}" unless params[:id].blank?
+          
           begin
             response = get("/e/#{params[:guid]}")
           rescue
