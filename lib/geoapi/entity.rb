@@ -23,10 +23,22 @@ module GeoAPI
       puts post_url
       
       results = Entity.post(post_url, {:body=> params.to_json})
+      debugger
       raise BadRequest, results['error'] unless results['error'].blank?
       
       #todo the result does not contain the guid, so merge it back in. Possible point of failure here?
-      Entity.new(results['result'].merge({:guid=>params[:guid]}))
+      Entity.new(results['result'].merge({'guid'=>results['query']['params']['guid']}))
+    end
+    
+    def self.destroy(params)
+      raise ArgumentError, "A name is required (pass :name in parameters)"  unless params.has_key?(:id) || params.has_key?(:guid)      
+      debugger
+      unless params[:guid].blank?
+        delete("/e/#{params[:guid]}") 
+      else
+        delete("/e/user-#{GeoAPI::API_KEY}-#{params[:guid]}") unless params[:id].blank?
+      end
+      
     end
     
     def self.create_at_lat_lng(params, lat, lng)
@@ -42,18 +54,28 @@ module GeoAPI
       params = args.extract_options!
       params = params == {} ? nil : params
       
-      results = []
       
-      filter = case args.first
-      when :all
-        'all'
-      else
-        raise ArgumentError, "Arguments should include a :guid" if params[:guid].blank?
-        results = Entity.new(get("/e/#{params[:guid]}")['result'].merge({'guid'=>params[:guid]})) #the api doesn't return a guid in json?!
+      case args.first
+        
+        when :all
+          results = []
+        else
+          results = nil
+          raise ArgumentError, "Arguments should include a :guid" if params[:guid].blank?
+        
+          response = get("/e/#{params[:guid]}")
+        
+          raise ArgumentError, "Arguments should include a :guid" if params[:guid].blank?
+        
+          results = Entity.new(response['result'].merge({'guid'=>params[:guid]})) unless response['result'].blank? #the api doesn't return a guid in json?!
       end
             
       results
       
+    end
+    
+    def self.find_by_id(the_id)
+      self.find(:get, :guid=>"user-#{GeoAPI::API_KEY}-#{the_id}")
     end
     
     # Instance methods
@@ -77,6 +99,15 @@ module GeoAPI
     
     def update
       self.initialize(post("/e/#{guid}"))
+    end
+    
+    def delete
+      raise ArgumentError, "Object has no :guid" if self.guid.blank?
+      Entity.destroy(:guid=>self.guid)
+    end
+    
+    def destroy
+      self.delete
     end
     
     def save
