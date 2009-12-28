@@ -19,36 +19,37 @@ module GeoAPI
     end
     
     def self.from_json json
-      attrs = Crack::JSON.parse(json)
+      unless json.blank?
+        attrs = Crack::JSON.parse(json)
       
-      geom = Geometry.new_from_class_name json['type']
+        geom = Geometry.new_from_class_name json['type']
       
-      unless geom.blank?
+        unless geom.blank?
         
-        geom.geometry_type = attrs['type']
+          geom.geometry_type = attrs['type']
       
-        geom.coords = attrs['coordinates']
+          geom.coords = attrs['coordinates']
         
-        geom
+          geom
         
+        end
       end
-      
     end
     
     def self.from_hash hash
+      unless hash.blank?
+        geom = Geometry.new_from_class_name hash['type']
       
-      geom = Geometry.new_from_class_name hash['type']
-      
-      unless geom.blank?
+        unless geom.blank?
         
-        geom.geometry_type = hash['type']
+          geom.geometry_type = hash['type']
       
-        geom.coords = hash['coordinates']
+          geom.coords = hash['coordinates']
         
-        geom
+          geom
       
+        end
       end
-      
     end
     
     

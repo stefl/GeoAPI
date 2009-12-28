@@ -95,7 +95,22 @@ module GeoAPI
       self.find(:get, :guid=>the_guid)
     end
     
-    
+    def self.search(lat, lng, conditions)
+      # Accepts all conditions from the API and passes them through - http://docs.geoapi.com/Simple-Search
+      begin
+        response = get("/search", :query=>conditions.merge({:lat=>lat,:lon=>lng}))
+      rescue
+        raise BadRequest, "There was a problem communicating with the API"
+      end
+      
+      results = []
+      unless response['result'].blank?
+        response['result'].each do |result|
+          results << Entity.new(result)
+        end
+        results.reverse!
+      end
+    end
     
     
     # Instance methods
