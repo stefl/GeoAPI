@@ -1,7 +1,7 @@
 module GeoAPI
   class View < GeoAPI::GeoObject
     
-    attr_accessor :name, :guid, :view_type, :id
+    attr_accessor :name, :guid, :view_type, :id, :entries
     
     @path_prefix = "view"
     
@@ -37,11 +37,13 @@ module GeoAPI
       self.view_type = attrs['type']
       
       self.entries = []
-      if attrs['entries'].size > 0
-        attrs['entries'].each do |entry|
-          self.entries << GeoAPI::Entry.new({:properties=>entry})  
+      unless attrs['entries'].blank?
+        if attrs['entries'].size > 0
+          attrs['entries'].each do |entry|
+            self.entries << GeoAPI::Entry.new({:properties=>entry})  
+          end
+          self.entries.reverse!
         end
-        self.entries.reverse!
       end
     end
     

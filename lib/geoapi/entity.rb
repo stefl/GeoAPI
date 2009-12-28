@@ -72,7 +72,7 @@ module GeoAPI
           results = nil
           raise ArgumentError, "Arguments should include a :guid or :id" if params[:guid].blank? && params[:id].blank?
         
-          params[:guid]=>"user-#{GeoAPI::API_KEY}-#{the_id}" unless params[:id].blank?
+          params[:guid] = "user-#{GeoAPI::API_KEY}-#{the_id}" unless params[:id].blank?
           
           begin
             response = get("/e/#{params[:guid]}")
@@ -106,19 +106,22 @@ module GeoAPI
       self.geom = GeoAPI::Geometry.from_hash(attrs['geom'])
       
       self.views = []
-      if attrs['views'].size > 0
-        attrs['views'].each do |view|
-          self.views << GeoAPI::View.new({:name=>view, :guid=>self.guid})
+      unless attrs['views'].blank?
+        if attrs['views'].size > 0
+          attrs['views'].each do |view|
+            self.views << GeoAPI::View.new({:name=>view, :guid=>self.guid})
+          end
         end
       end
       
       self.userviews = []
-      if attrs['userviews'].size > 0
-        attrs['userviews'].each do |view|
-          self.userviews << GeoAPI::UserView.new({:name=>view, :guid=>self.guid})
+      unless attrs['userviews'].blank?
+        if attrs['userviews'].size > 0
+          attrs['userviews'].each do |view|
+            self.userviews << GeoAPI::UserView.new({:name=>view, :guid=>self.guid})
+          end
         end
       end
-      
 
       self
     end
