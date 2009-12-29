@@ -12,6 +12,7 @@ module GeoAPI
     
     
     def self.create(params)
+      puts "GEOAPI::Entity.create #{params.to_json}"
       #required: name, geom
       #optional: pass id and it will create a new guid for you as user-<apikey>-<id>
       
@@ -36,6 +37,7 @@ module GeoAPI
     end
     
     def self.destroy(params)
+      puts "GEOAPI::Entity.destroy #{params.to_json}"
       raise ArgumentError, "An id or guid is required (pass :id or :guid in parameters)"  unless params.has_key?(:id) || params.has_key?(:guid)      
       
       begin
@@ -51,13 +53,14 @@ module GeoAPI
     end
     
     def self.create_at_lat_lng(params, lat, lng)
+      puts "GEOAPI::Entity.create_at_lat_lng #{lat},#{lng}"
       p = GeoAPI::Point.new(lat,lng)
       
       self.create(params.merge({:geom=>p}))
     end
     
     def self.find(*args)
-      
+      puts "GEOAPI::Entity.find #{args.to_s}"
       raise ArgumentError, "First argument must be symbol (:all or :get)" unless args.first.kind_of?(Symbol)
       
       params = args.extract_options!
@@ -88,14 +91,17 @@ module GeoAPI
     end
     
     def self.find_by_id(the_id)
+      puts "GEOAPI::Entity.find_by_id #{the_id}"
       self.find(:get, :guid=>"user-#{GeoAPI::API_KEY}-#{the_id}")
     end
     
     def self.find_by_guid(the_guid)
+      puts "GEOAPI::Entity.find_by_guid #{the_guid}"
       self.find(:get, :guid=>the_guid)
     end
     
     def self.search(lat, lng, conditions)
+      puts "GEOAPI::Entity.search #{lat},#{lng} | #{conditions.to_s}"
       # Accepts all conditions from the API and passes them through - http://docs.geoapi.com/Simple-Search
       begin
         response = get("/search", :query=>conditions.merge({:lat=>lat,:lon=>lng}))
@@ -119,9 +125,10 @@ module GeoAPI
     end
     
     def setup(attrs)
-    
+      
       self.guid = attrs['guid'] unless attrs['guid'].blank?
       self.guid = "user-#{GeoAPI::API_KEY}-#{attrs['id']}" unless attrs['id'].blank?
+      puts "GEOAPI::Entity.setup #{self.guid}"
       self.errors = attrs['error']
       self.name = attrs['name']
       self.entity_type = attrs['type']
@@ -179,10 +186,13 @@ module GeoAPI
     end
     
     def update
-      self.setup(post("/e/#{guid}"))
+      puts "GEOAPI::Entity.update #{self.guid}"
+      self.setup(post("/e/#{guid}", :body=>{self.to_json}))
     end
     
     def load
+      puts "GEOAPI::Entity.load #{self.guid}"
+      
       raise ArgumentError, "Properties should include a .guid or .id" if self.guid.blank? && self.id.blank?
       
       the_guid = self.guid
@@ -200,6 +210,7 @@ module GeoAPI
     end
     
     def delete
+      puts "GEOAPI::Entity.delete #{self.guid}"
       raise ArgumentError, "Object has no :guid" if self.guid.blank?
       begin
         Entity.destroy(:guid=>self.guid)
