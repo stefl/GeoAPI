@@ -1,3 +1,26 @@
+= OVERVIEW
+
+- This is a fork of the GeoAPI gem
+
+- This is bleeding edge, and under live development
+
+== Code examples:
+
+  @entity = Entity.create_at_lat_lng({:id=>"moseley",:name=>"Moseley"},52.446506, 1.888213)
+  
+  - Creates a new Entity object at the given latitude/longitude point.
+  
+  
+  === Automatically generated accessor functions for all Views and UserViews
+  
+  @entity.twitter_view
+  @entity.twitter_view_entries
+  
+  @entity.flickr_view
+  @entity.flickr_view_entries 
+  @entity.<my_application>_view_entries
+  
+
 = NOTE
 
 This is still actively being developed and is very alpha.  You can currently conduct a simple search and an MQL query.  The results are returned as ruby hash.

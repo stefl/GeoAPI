@@ -23,7 +23,7 @@ module GeoAPI
       post_url = "/e/user-#{GeoAPI::API_KEY}-#{params[:id]}" unless params[:id].blank?
       post_url = "/e/#{params[:guid]}" unless params[:guid].blank?
 
-      pp post_url
+      puts post_url
       
       begin
         results = Entity.post(post_url, {:body=> params.to_json}) 
@@ -53,7 +53,7 @@ module GeoAPI
     end
     
     def self.create_at_lat_lng(params, lat, lng)
-      puts "GEOAPI::Entity.create_at_lat_lng #{lat},#{lng}"
+      puts "GEOAPI::Entity.create_at_lat_lng #{lat},#{lng} | #{params.to_json}"
       p = GeoAPI::Point.new(lat,lng)
       
       self.create(params.merge({:geom=>p}))
@@ -121,13 +121,14 @@ module GeoAPI
     
     # Instance methods
     def initialize(attrs)
-      setup(attrs)
+      self.setup(attrs) unless attrs.blank?
     end
     
     def setup(attrs)
-      
-      self.guid = attrs['guid'] unless attrs['guid'].blank?
-      self.guid = "user-#{GeoAPI::API_KEY}-#{attrs['id']}" unless attrs['id'].blank?
+      puts attrs
+      debugger
+      self.guid = attrs['guid'] if defined?(attrs['guid'])
+      self.guid = "user-#{GeoAPI::API_KEY}-#{attrs['id']}" if defined?(attrs['id'])
       puts "GEOAPI::Entity.setup #{self.guid}"
       self.errors = attrs['error']
       self.name = attrs['name']
@@ -187,7 +188,7 @@ module GeoAPI
     
     def update
       puts "GEOAPI::Entity.update #{self.guid}"
-      self.setup(post("/e/#{guid}", :body=>{self.to_json}))
+      self.setup(post("/e/#{guid}", {:body=>self.to_json}))
     end
     
     def load
