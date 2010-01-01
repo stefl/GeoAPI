@@ -31,13 +31,14 @@ module GeoAPI
 end
 
 
-dir = Pathname(__FILE__).dirname.expand_path.to_s
-
-require dir + '/geoapi/geo_object' 
-require dir + '/geoapi/geometry' 
-require dir + '/geoapi/version'
-require dir + '/geoapi/entity'
-require dir + '/geoapi/entry'
-require dir + '/geoapi/view'
-require dir + '/geoapi/user_view'
-require dir + '/geoapi/query'
+$:.unshift(File.dirname(__FILE__)) unless
+  $:.include?(File.dirname(__FILE__)) || $:.include?(File.expand_path(File.dirname(__FILE__)))
+  
+require 'geoapi/geo_object' 
+require 'geoapi/geometry' 
+require 'geoapi/version'
+require 'geoapi/entity'
+require 'geoapi/entry'
+require 'geoapi/view'
+require 'geoapi/user_view'
+require 'geoapi/query'
