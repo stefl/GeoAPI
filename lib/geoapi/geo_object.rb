@@ -9,7 +9,8 @@ module GeoAPI
       attr_accessor :api_key
     end
     
-    default_params Proc.new({:apikey => self.api_key})
+    #default_params Proc.new { :apikey => self.api_key} } 
+    default_params :apikey => self.api_key
     base_uri GeoAPI::API_URL
     
     # Allow users to set the API key explicitly, or gain it from other sources. 
