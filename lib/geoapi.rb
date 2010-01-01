@@ -1,3 +1,5 @@
+GEO_APIKEY = "p4MIOnORr3"
+
 %w{rubygems rest_client httparty json crack/json}.each { |x| require x }
 
 class Array
@@ -17,12 +19,6 @@ end
 module GeoAPI
   API_VERSION = "v1"
   API_URL     = "http://api.geoapi.com/#{API_VERSION}/"
-  
-  #API_KEY should be set elsewhere
-  
-  class << self
-   attr_accessor :apikey
-  end
 
   class ArgumentError        < StandardError; end
   class BadRequest           < StandardError; end

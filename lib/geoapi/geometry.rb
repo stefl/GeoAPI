@@ -78,6 +78,8 @@ module GeoAPI
   
   class Point < GeoAPI::Geometry    
     
+    attr_accessor :geometry_type, :coords
+    
     def initialize *args
       
       params = args.extract_options!
@@ -88,7 +90,7 @@ module GeoAPI
       raise ArgumentError, ":lat (latitude) must be sent as a parameter to the GeoAPI::Point constructor" unless params.has_key?(:lat)
       raise ArgumentError, ":lng (longitude) must be sent as a parameter to the GeoAPI::Point constructor" unless params.has_key?(:lng)
       
-      @coords = [params[:lat].to_f, params[:lng].to_f]
+      self.coords = [params[:lat].to_f, params[:lng].to_f]
       super args
     end
     
@@ -97,6 +99,7 @@ module GeoAPI
   
   class Multipoint < GeoAPI::Geometry
     
+    attr_accessor :geometry_type, :coords
   
     def initialize attrs
       
@@ -109,6 +112,8 @@ module GeoAPI
   
   class Polygon < GeoAPI::Geometry
         
+    attr_accessor :geometry_type, :coords
+    
     def initialize attrs
       self.coords = [] 
       super attrs

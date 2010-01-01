@@ -4,9 +4,9 @@ module GeoAPI
     attr_accessor :properties
     
     def initialize attrs
+      super(attrs)
       self.properties = attrs['properties']
       
-      super(attrs)
     end
   end
 end
