@@ -2,32 +2,10 @@ module GeoAPI
   class Geometry
     
     class << self
-      attr_accessor :coords
+      attr_accessor :coords, :geometry_type
     end
+  
     
-    cattr_accessor :geometry_type
-    
-    # From Rails core: http://caboo.se/doc/classes/Class.html#M004152
-    
-    def cattr_accessor(*syms)
-       cattr_reader(*syms)
-       cattr_writer(*syms)
-     end
-    
-    def cattr_reader(*syms)
-       syms.flatten.each do |sym|
-         next if sym.is_a?(Hash)
-         class_eval("unless defined? @@\#{sym}\n@@\#{sym} = nil\nend\n\ndef self.\#{sym}\n@@\#{sym}\nend\n\ndef \#{sym}\n@@\#{sym}\nend\n", __FILE__, __LINE__)
-       end
-     end
-     
-    def cattr_writer(*syms)
-       options = syms.extract_options!
-       syms.flatten.each do |sym|
-         class_eval("unless defined? @@\#{sym}\n@@\#{sym} = nil\nend\n\ndef self.\#{sym}=(obj)\n@@\#{sym} = obj\nend\n\n\#{\"\ndef \#{sym}=(obj)\n@@\#{sym} = obj\nend\n\" unless options[:instance_writer] == false }\n", __FILE__, __LINE__)
-       end
-     end
-     
     # Class methods
     
     def self.new_from_class_name class_name
@@ -95,8 +73,9 @@ module GeoAPI
   end
   
   class Point < GeoAPI::Geometry    
+    
+    @geometry_type = "Point"
     def initialize lat=0, lng=0
-      self.geometry_type = "Point"
       self.coords = [lat.to_f, lng.to_f]
     end
     
@@ -104,8 +83,11 @@ module GeoAPI
   end
   
   class Multipoint < GeoAPI::Geometry
+    
+    @geometry_type = "Multipoint"
+  
     def initialize
-      self.geometry_type = "Multipoint"
+      
       self.coords = []
     end
     
@@ -113,8 +95,10 @@ module GeoAPI
   end
   
   class Polygon < GeoAPI::Geometry
+    
+    @geometry_type = "Polygon"
+    
     def initialize
-      self.geometry_type = "Polygon"
       self.coords = []
     end
     
