@@ -1,8 +1,16 @@
 = OVERVIEW
 
-- This is a fork of the GeoAPI gem
+  Unfortunately I've decided to 'fail fast' and am giving up on developing this gem:
+  The API isn't yet reliable enough to be able to develop with it - I'm consistently seeing the following:
+  
+  * 504 bad gateway
+  * Connections that remain open
+  * Every other request giving a response, others just time out
+  * Search for user-entities doesn't appear to function (the reason for the app I am working on)
+  
+  Sorry - if anyone wants to pick up where I left off, feel free.
 
-- This is bleeding edge, and under live development
+
 
 == Code examples:
 

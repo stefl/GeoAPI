@@ -45,7 +45,7 @@ module GeoAPI
     
     def self.post path, options={}
       puts "Post: #{path} : #{options.to_s}"
-      timeout = options[:timeout] || 1
+      timeout = options[:timeout] || 2
       options.delete(:timeout)
       retryable( :tries => 2 ) do
         Timeout::timeout(timeout) do |t|
@@ -56,8 +56,11 @@ module GeoAPI
     
     def self.get path, options={}
       puts "Get: #{path} : #{options.to_s}"
-      timeout = options[:timeout] || 1
+      timeout = options[:timeout] || 2
+      debugger
       options.delete(:timeout)
+      puts options.to_s
+      puts "Timeout #{timeout}"
       retryable( :tries => 2 ) do
         Timeout::timeout(timeout) do |t|
           super path, options
@@ -67,7 +70,7 @@ module GeoAPI
     
     def self.delete path, options={}
       puts "Delete: #{path} : #{options.to_s}"
-      timeout = options[:timeout] || 1
+      timeout = options[:timeout] || 2
       options.delete(:timeout)
       retryable( :tries => 2 ) do
         Timeout::timeout(timeout) do |t|

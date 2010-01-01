@@ -166,7 +166,7 @@ module GeoAPI
       
       # Accepts all conditions from the API and passes them through - http://docs.geoapi.com/Simple-Search
       
-      response = get("/search", :query=>conditions.merge({:lat=>lat,:lon=>lng,:apikey=>api_key,:timeout=>60}))
+      response = get("/search", {:timeout=>60, :query=>conditions.merge({:lat=>lat,:lon=>lng,:apikey=>api_key})})
       
       begin
         
