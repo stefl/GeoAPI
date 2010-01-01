@@ -49,8 +49,6 @@ def retryable(options = {}, &block)
   yield
 end
 
-GEO_APIKEY = "p4MIOnORr3"
-
 class Array
   # Extract options from a set of arguments. Removes and returns the last element in the array if it's a hash, otherwise returns a blank hash.
   #

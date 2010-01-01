@@ -6,10 +6,75 @@
 
 == Code examples:
 
-  @entity = Entity.create_at_lat_lng({:id=>"moseley",:name=>"Moseley"},52.446506, 1.888213)
+  === Setting the API KEY
   
-  - Creates a new Entity object at the given latitude/longitude point.
+  There are three methods for setting the apikey variable which must be sent with all requests. They are:
   
+  Defining it. Easiest: sets the API Key for use globally. Use this method unless you need multiple API Keys:
+  
+  GEOAPI_KEY = "<my-apikey>"
+  
+  For Rails, put this in environment.rb
+  
+  Using an Environment variable in your shell.
+  
+  ENV["GEOAPI_KEY"] = <my-apikey>
+  
+  Using a 'Client' so you can use more than one API Key per application:
+  
+  @client = GeoAPI::Client.new("<my-apikey>")
+  @entity = GeoAPI::Entity.find_by_id('12345', :client=>@client)
+  
+  @other_client = GeoAPI::Client.new("<my-other-apikey>")
+  @other_entity = GeoAPI::Entity.find_by_id('abcde', :client=>@other_client)
+  
+  You can also send :apikey=>"<my-apikey>" in options for Entity methods:
+  
+  @entity = GeoAPI::Entity.find_by_id('12345', :apikey=>"<my-apikey>")
+  
+  === Creating new Entities
+  
+  @entity = Entity.create_at_lat_lng(:id=>"moseley",:name=>"Moseley", :lat=>52.446506, :lng=>1.888213)
+  
+  Creates a new Entity object at the given latitude/longitude point.
+
+  Other ways of creating entities are not yet supported, but there are Polygon and Multipoint models which need building.
+  
+  == Finding Entities
+  
+  Entity.search(options)
+  Performs and Entity search on the API. Takes a hash of options as documented on GeoAPI.com
+  
+  Entity.find(options)
+  Finds a specific entity - you must pass :guid or :id
+  
+  == Standard CRUD methods
+  
+  Entity.create_at_lat_lng(:id=>"moseley",:name=>"Moseley", :lat=>52.446506, :lng=>1.888213)
+  The easiest way to create a new User Entity - requires an ID and a name.
+  
+  Entity.find_by_id("moseley")
+  Gets an entity and returns the result.
+  
+  Entity.find_by_guid("user-abc123-moseley")
+  An ID is useful for your application, but its actual GUID can also be used to retrieve it.
+  
+  Entity.delete({:id=>"moseley"}) and
+  @entity.delete
+  Destroys an entity, either via guid or id.
+  
+  @entity.update
+  
+  == Eager loading and caching
+  
+  This gem does _not_ eager load all results of a search, nor does it cache them, In order to use an item retrieved from a request, you must first load it. Eg.:
+  
+  @entities = Entity.find(options)
+  
+  @entities.each do |e|
+    e.load
+    puts "#{e.name} is at #{e.lat},#{e.lng}"
+  end
   
   === Automatically generated accessor functions for all Views and UserViews
   
@@ -26,8 +91,6 @@
 This is still actively being developed and is very alpha.  You can currently conduct a simple search and an MQL query.  The results are returned as ruby hash.
 
 == TODO
-
-- Building data objects to represent Entities and Views.
 
 - Allow updates to views.
 
