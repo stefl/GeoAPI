@@ -1,13 +1,22 @@
 module GeoAPI
   class Entity < GeoAPI::GeoObject
     
-    attr_accessor  :guid, :id, :name, :entity_type, :geom, :url, :latitude, :longitude, :views, :userviews, :raw_json, :errors, :shorturl, :raw_json
+    attr_accessor  :guid, :id, :name, :entity_type, :geom, :url, :views, :userviews, :raw_json, :errors, :shorturl, :raw_json
         
+
+    alias_method :geometry, :geom
+
+    def latitude
+      geometry.latitude
+    end
+    
+    def longitude
+      geometry.longitude
+    end
+    
     alias_method :lat, :latitude 
     alias_method :lon, :longitude
     alias_method :lng, :longitude
-    alias_method :geometry, :geom
-
     
     # Class methods
     
@@ -156,8 +165,11 @@ module GeoAPI
       raise ArgumentError, "An API Key is required" if api_key.blank?
       
       # Accepts all conditions from the API and passes them through - http://docs.geoapi.com/Simple-Search
+      
+      response = get("/search", :query=>conditions.merge({:lat=>lat,:lon=>lng,:apikey=>api_key,:timeout=>60}))
+      
       begin
-        response = get("/search", :query=>conditions.merge({:lat=>lat,:lon=>lng,:apikey=>api_key}))
+        
       rescue
         raise BadRequest, "There was a problem communicating with the API"
       end
