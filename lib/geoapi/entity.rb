@@ -52,11 +52,15 @@ module GeoAPI
       end
     end
     
-    def self.create_at_lat_lng(params, lat, lng)
+    def self.create_at_lat_lng(params)
       puts "GEOAPI::Entity.create_at_lat_lng #{lat},#{lng} | #{params.to_json}"
-      p = GeoAPI::Point.new(lat,lng)
       
-      self.create(params.merge({:geom=>p}))
+      raise ArgumentError, ":lat must be sent as a parameter" unless params.has_key(:lat)
+      raise ArgumentError, ":lng must be sent as a parameter" unless params.has_key(:lng)
+      
+      p = GeoAPI::Point.new(params[:lat],params[:lng])
+      
+      self.create(params.merge({:geom=>p}).delete(:lat).delete(:lng))
     end
     
     def self.find(*args)
