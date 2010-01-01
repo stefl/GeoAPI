@@ -11,9 +11,12 @@ module GeoAPI
     #
     # @client = GeoAPI::Client.new('<your-api-key>')  
     #
+    # OR set GEOAPI_KEY='<your-api-key>' before including GeoAPI
+    #
+    # @client = GeoAPI::Client.new
     
     def initialize(api_key=nil)
-      @api_key = api_key || ENV['GEOAPI_KEY']
+      @api_key = api_key || ENV['GEOAPI_KEY'] || GEOAPI_KEY
     end
   
   end

@@ -2,7 +2,7 @@ module GeoAPI
   class Entity < GeoAPI::GeoObject
     
     attr_accessor  :guid, :id, :name, :entity_type, :geom, :url, :latitude, :longitude, :views, :userviews, :raw_json, :errors, :shorturl, :raw_json
-    
+        
     alias_method :lat, :latitude 
     alias_method :lon, :longitude
     alias_method :geometry, :geom
@@ -178,6 +178,8 @@ module GeoAPI
         end
       end
 
+      super(attrs)
+      
       self
     
     end
