@@ -48,7 +48,9 @@ module GeoAPI
           geom.geometry_type = hash['type']
       
           geom.coords = hash['coordinates']
-        
+          
+          puts geom
+          
           geom
       
         end
@@ -71,7 +73,7 @@ module GeoAPI
     end
     
     def initialize attrs
-      @geometry_type = self.class.name
+      @geometry_type = self.class.name.split('::').last
     end
     
   end
@@ -87,10 +89,10 @@ module GeoAPI
       
       puts "GEOAPI::Point.new #{params.to_json}"
       
-      raise ArgumentError, ":lat (latitude) must be sent as a parameter to the GeoAPI::Point constructor" unless params.has_key?(:lat)
-      raise ArgumentError, ":lng (longitude) must be sent as a parameter to the GeoAPI::Point constructor" unless params.has_key?(:lng)
+      #raise ArgumentError, ":lat (latitude) must be sent as a parameter to the GeoAPI::Point constructor" unless params.has_key?(:lat)
+      #raise ArgumentError, ":lng (longitude) must be sent as a parameter to the GeoAPI::Point constructor" unless params.has_key?(:lng)
       
-      self.coords = [params[:lat].to_f, params[:lng].to_f]
+      self.coords = [params[:lat].to_f, params[:lng].to_f] unless params.blank? || params[:lat].blank?
       super args
     end
     

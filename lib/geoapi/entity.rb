@@ -18,13 +18,18 @@ module GeoAPI
       
       raise ArgumentError, "A name is required (pass :name in parameters)" unless params.has_key?(:name)
       raise ArgumentError, "A geometry is required (pass :geom in parameters)" unless params.has_key?(:geom)
+      
+      api_key = self.api_key_from_parameters(params)
+      
       raise ArgumentError, "An API Key is required" if api_key.blank?
       
       post_url = "/e" 
-      post_url = "/e/user-#{api_key}-#{params[:id]}" unless params[:id].blank?
-      post_url = "/e/#{params[:guid]}" unless params[:guid].blank?
+      post_url = "/e/user-#{api_key}-#{params[:id]}?apikey=#{api_key}" unless params[:id].blank?
+      post_url = "/e/#{params[:guid]}?apikey=#{api_key}" unless params[:guid].blank?
 
       puts post_url
+      
+      params.delete(:id) if params.has_key?(:id)
       
       begin
         results = Entity.post(post_url, {:body=> params.to_json}) 
@@ -48,9 +53,9 @@ module GeoAPI
       
       begin
         unless params[:guid].blank?
-          delete("/e/#{params[:guid]}") 
+          delete("/e/#{params[:guid]}?apikey=#{api_key}") 
         else
-          delete("/e/user-#{api_key}-#{params[:guid]}") unless params[:id].blank?
+          delete("/e/user-#{api_key}-#{params[:guid]}?apikey=#{api_key}") unless params[:id].blank?
         end
       
       rescue
@@ -67,6 +72,7 @@ module GeoAPI
       
       raise ArgumentError, ":lat must be sent as a parameter" unless params.has_key?(:lat)
       raise ArgumentError, ":lng must be sent as a parameter" unless params.has_key?(:lng)
+      puts "test API key #{api_key}"
       raise ArgumentError, "An API Key is required" if api_key.blank?
       
       p = GeoAPI::Point.new(:lat => params[:lat],:lng => params[:lng])
@@ -83,10 +89,12 @@ module GeoAPI
       
       raise ArgumentError, "First argument must be symbol (:all or :get)" unless args.first.kind_of?(Symbol)
       
-      raise ArgumentError, "An API Key is required" if api_key.blank?
-      
       params = args.extract_options!
       params = params == {} ? nil : params
+      
+      api_key = self.api_key_from_parameters(params)
+      
+      raise ArgumentError, "An API Key is required" if api_key.blank?
       
       case args.first
         
@@ -98,9 +106,11 @@ module GeoAPI
           raise ArgumentError, "Arguments should include a :guid or :id" if params[:guid].blank? && params[:id].blank?
         
           params[:guid] = "user-#{api_key}-#{the_id}" unless params[:id].blank?
+        
+          response = get("/e/#{params[:guid]}?apikey=#{api_key}")
           
           begin
-            response = get("/e/#{params[:guid]}")
+            
           rescue
             raise BadRequest, "There was a problem communicating with the API"
           end
@@ -112,30 +122,36 @@ module GeoAPI
       
     end
     
-    def self.find_by_id(the_id)
+    def self.find_by_id(the_id, options={})
       puts "GEOAPI::Entity.find_by_id #{the_id}"
+      
+      api_key = self.api_key_from_parameters(options)
       
       raise ArgumentError, "An API Key is required" if api_key.blank?
       
       self.find(:get, :guid=>"user-#{api_key}-#{the_id}")
     end
     
-    def self.find_by_guid(the_guid)
+    def self.find_by_guid(the_guid, options={})
       puts "GEOAPI::Entity.find_by_guid #{the_guid}"
+      
+      api_key = self.api_key_from_parameters(options)
       
       raise ArgumentError, "An API Key is required" if api_key.blank?
       
       self.find(:get, :guid=>the_guid)
     end
     
-    def self.search(lat, lng, conditions)
+    def self.search(lat, lng, conditions, options={})
       puts "GEOAPI::Entity.search #{lat},#{lng} | #{conditions.to_s}"
+      
+      api_key = self.api_key_from_parameters(options)
       
       raise ArgumentError, "An API Key is required" if api_key.blank?
       
       # Accepts all conditions from the API and passes them through - http://docs.geoapi.com/Simple-Search
       begin
-        response = get("/search", :query=>conditions.merge({:lat=>lat,:lon=>lng}))
+        response = get("/search", :query=>conditions.merge({:lat=>lat,:lon=>lng,:apikey=>api_key}))
       rescue
         raise BadRequest, "There was a problem communicating with the API"
       end
@@ -157,10 +173,10 @@ module GeoAPI
     end
     
     def setup(attrs)
-      puts attrs
-      debugger
-      self.guid = attrs['guid'] if defined?(attrs['guid'])
-      self.guid = "user-#{api_key}-#{attrs['id']}" if defined?(attrs['id'])
+      puts "Setup Entity with attributes: #{attrs.to_json}"
+      
+      self.guid = attrs['guid'] if attrs.has_key?('guid')
+      self.guid = "user-#{@api_key}-#{attrs['id']}" if attrs.has_key?('id')
       puts "GEOAPI::Entity.setup #{self.guid}"
       self.errors = attrs['error']
       self.name = attrs['name']
@@ -209,8 +225,6 @@ module GeoAPI
           end
         end
       end
-
-      super(attrs)
       
       self
     
@@ -225,7 +239,7 @@ module GeoAPI
       
       raise ArgumentError, "An API Key is required" if api_key.blank?
       
-      self.setup(post("/e/#{guid}", {:body=>self.to_json}))
+      self.setup(post("/e/#{guid}?apikey=#{api_key}", {:body=>self.to_json}))
     end
     
     def load
@@ -239,7 +253,7 @@ module GeoAPI
       the_guid ||= "user-#{api_key}-#{self.id}"
       
       begin
-        response = self.class.get("/e/#{the_guid}")
+        response = self.class.get("/e/#{the_guid}?apikey=#{api_key}")
       rescue
         raise BadRequest, "There was a problem communicating with the API"
       end

@@ -18,6 +18,10 @@ module GeoAPI
     def initialize(api_key=nil)
       @api_key = api_key || ENV['GEOAPI_KEY'] || GEOAPI_KEY
     end
+    
+    def api_key
+      @api_key
+    end
   
   end
 end
