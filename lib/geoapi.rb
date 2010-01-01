@@ -17,7 +17,7 @@ end
 module GeoAPI
   API_VERSION = "v1"
   API_URL     = "http://api.geoapi.com/#{API_VERSION}/"
-  API_KEY = "p4MIOnORr3"
+  
   #API_KEY should be set elsewhere
   
   class << self
