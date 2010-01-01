@@ -1,7 +1,10 @@
 module GeoAPI
   class Geometry
     
-    class_inheritable_accessor :geometry_type, :coords
+    class << self
+      attr_accessor :geometry_type, :coords
+    end
+     
     
     # Class methods
     

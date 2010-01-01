@@ -2,7 +2,10 @@ module GeoAPI
   class View < GeoAPI::GeoObject
     
     attr_accessor :name, :guid, :view_type, :id, :entries
-    cattr_accessor :path_prefix
+    
+    class << self
+      attr_accessor :path_prefix
+    end
     
     GeoAPI::VIEW_PATH_PREFIX = "view"
     GeoAPI::USERVIEW_PATH_PREFIX = "userview"
