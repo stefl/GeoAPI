@@ -5,6 +5,7 @@ module GeoAPI
         
     alias_method :lat, :latitude 
     alias_method :lon, :longitude
+    alias_method :lng, :longitude
     alias_method :geometry, :geom
 
     
@@ -23,13 +24,16 @@ module GeoAPI
       
       raise ArgumentError, "An API Key is required" if api_key.blank?
       
+      id = params[:id] || UUIDTools::UUID.timestamp_create().to_s
+      
       post_url = "/e" 
-      post_url = "/e/user-#{api_key}-#{params[:id]}?apikey=#{api_key}" unless params[:id].blank?
+      post_url = "/e/user-#{api_key}-#{id}?apikey=#{api_key}" unless id.blank?
       post_url = "/e/#{params[:guid]}?apikey=#{api_key}" unless params[:guid].blank?
 
       puts post_url
       
       params.delete(:id) if params.has_key?(:id)
+      params.delete(:guid) if params.has_key?(:guid)
       
       begin
         results = Entity.post(post_url, {:body=> params.to_json}) 
@@ -40,7 +44,9 @@ module GeoAPI
       raise BadRequest, results['error'] unless results['error'].blank?
       
       #todo the result does not contain the guid, so merge it back in. Possible point of failure here?
-      Entity.new(results['result'].merge({'guid'=>results['query']['params']['guid']}))
+      
+      guid = results['query']['params']['guid']
+      Entity.new(results['result'].merge({'guid'=>guid, 'id'=>GeoAPI::Client.id_from_guid(guid,api_key)}))
     end
     
     def self.destroy(params)
@@ -55,7 +61,7 @@ module GeoAPI
         unless params[:guid].blank?
           delete("/e/#{params[:guid]}?apikey=#{api_key}") 
         else
-          delete("/e/user-#{api_key}-#{params[:guid]}?apikey=#{api_key}") unless params[:id].blank?
+          delete("/e/user-#{api_key}-#{params[:id]}?apikey=#{api_key}") unless params[:id].blank?
         end
       
       rescue
@@ -178,6 +184,7 @@ module GeoAPI
       self.guid = attrs['guid'] if attrs.has_key?('guid')
       self.guid = "user-#{@api_key}-#{attrs['id']}" if attrs.has_key?('id')
       puts "GEOAPI::Entity.setup #{self.guid}"
+      self.id = attrs['id'] if attrs.has_key?('id')
       self.errors = attrs['error']
       self.name = attrs['name']
       self.entity_type = attrs['type']

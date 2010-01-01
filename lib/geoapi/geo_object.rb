@@ -24,17 +24,19 @@ module GeoAPI
     end
     
     def self.api_key 
-      @api_key ||= GEO_APIKEY
+      @api_key ||= GeoAPI::GEOAPI_KEY
       @api_key ||= ENV["GEOAPI_KEY"]
       puts "API KEY: #{@api_key}"
       @api_key
     end
     
     def self.api_key_from_parameters(attrs)
-      the_api_key = attrs[:client].api_key if attrs.has_key?(:client)
-      the_api_key ||= attrs[:apikey] if attrs.has_key?(:apikey)
-      the_api_key ||= attrs[:api_key] if attrs.has_key?(:api_key)
-      the_api_key ||= attrs[:api_key] if attrs.has_key?(:api_key)
+      unless attrs.blank?
+        the_api_key = attrs[:client].api_key if attrs.has_key?(:client)
+        the_api_key ||= attrs[:apikey] if attrs.has_key?(:apikey)
+        the_api_key ||= attrs[:api_key] if attrs.has_key?(:api_key)
+        the_api_key ||= attrs[:api_key] if attrs.has_key?(:api_key)
+      end
       the_api_key ||= self.api_key
       puts "API Key from parameters: #{the_api_key}"
       @api_key = the_api_key

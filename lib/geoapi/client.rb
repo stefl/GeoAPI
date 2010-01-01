@@ -16,11 +16,16 @@ module GeoAPI
     # @client = GeoAPI::Client.new
     
     def initialize(api_key=nil)
-      @api_key = api_key || ENV['GEOAPI_KEY'] || GEOAPI_KEY
+      @api_key = api_key || ENV['GEOAPI_KEY'] || GeoAPI::GEOAPI_KEY
     end
     
     def api_key
       @api_key
+    end
+    
+    def self.id_from_guid(guid,apikey)
+      id = guid.sub('user-','')
+      id = id.sub("#{apikey}-",'')
     end
   
   end

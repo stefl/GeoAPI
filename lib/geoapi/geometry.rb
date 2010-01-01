@@ -82,6 +82,14 @@ module GeoAPI
     
     attr_accessor :geometry_type, :coords
     
+    def latitude
+      coords[0]
+    end
+    
+    def longitude
+      coords[1]
+    end
+    
     def initialize *args
       
       params = args.extract_options!

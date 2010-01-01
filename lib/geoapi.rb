@@ -1,5 +1,5 @@
 
-%w{rubygems rest_client httparty json crack/json}.each { |x| require x }
+%w{rubygems rest_client httparty json crack/json uuidtools}.each { |x| require x }
 
 # Patch HTTParty to debug 
 HTTParty::Request.class_eval do
