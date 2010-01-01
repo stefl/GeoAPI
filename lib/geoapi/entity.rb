@@ -65,7 +65,7 @@ module GeoAPI
       raise ArgumentError, ":lat must be sent as a parameter" unless params.has_key?(:lat)
       raise ArgumentError, ":lng must be sent as a parameter" unless params.has_key?(:lng)
       
-      p = GeoAPI::Point.new(params[:lat],params[:lng])
+      p = GeoAPI::Point.new(:lat => params[:lat],:lng => params[:lng])
       
       params.delete(:lat)
       params.delete(:lng)

@@ -2,7 +2,7 @@ module GeoAPI
   class Geometry
     
     class << self
-      attr_accessor :coords
+      attr_accessor :coords, :geometry_type
     end
   
     
@@ -78,13 +78,18 @@ module GeoAPI
   
   class Point < GeoAPI::Geometry    
     
-    def initialize attrs
+    def initialize *args
       
-      raise ArgumentError, ":lat (latitude) must be sent as an attribute to the GeoAPI::Point constructor" unless attrs.has_key?[:lat]
-      raise ArgumentError, ":lng (longitude) must be sent as an attribute to the GeoAPI::Point constructor" unless attrs.has_key?[:lng]
+      params = args.extract_options!
+      params = params == {} ? nil : params
       
-      @coords = [attrs[:lat].to_f, attrs[:lng].to_f]
-      super attrs
+      puts "GEOAPI::Point.new #{params.to_json}"
+      
+      raise ArgumentError, ":lat (latitude) must be sent as a parameter to the GeoAPI::Point constructor" unless params.has_key?(:lat)
+      raise ArgumentError, ":lng (longitude) must be sent as a parameter to the GeoAPI::Point constructor" unless params.has_key?(:lng)
+      
+      @coords = [params[:lat].to_f, params[:lng].to_f]
+      super args
     end
     
 
