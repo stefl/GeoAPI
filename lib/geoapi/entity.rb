@@ -30,6 +30,7 @@ module GeoAPI
       rescue
         raise BadRequest, "There was a problem communicating with the API"
       end
+      
       raise BadRequest, results['error'] unless results['error'].blank?
       
       #todo the result does not contain the guid, so merge it back in. Possible point of failure here?
@@ -37,7 +38,9 @@ module GeoAPI
     end
     
     def self.destroy(params)
+      
       puts "GEOAPI::Entity.destroy #{params.to_json}"
+      
       raise ArgumentError, "An id or guid is required (pass :id or :guid in parameters)"  unless params.has_key?(:id) || params.has_key?(:guid)      
       
       begin
@@ -52,24 +55,32 @@ module GeoAPI
       end
     end
     
-    def self.create_at_lat_lng(params)
-      puts "GEOAPI::Entity.create_at_lat_lng #{lat},#{lng} | #{params.to_json}"
-      
-      raise ArgumentError, ":lat must be sent as a parameter" unless params.has_key(:lat)
-      raise ArgumentError, ":lng must be sent as a parameter" unless params.has_key(:lng)
-      
-      p = GeoAPI::Point.new(params[:lat],params[:lng])
-      
-      self.create(params.merge({:geom=>p}).delete(:lat).delete(:lng))
-    end
-    
-    def self.find(*args)
-      puts "GEOAPI::Entity.find #{args.to_s}"
-      raise ArgumentError, "First argument must be symbol (:all or :get)" unless args.first.kind_of?(Symbol)
+    def self.create_at_lat_lng(*args)
       
       params = args.extract_options!
       params = params == {} ? nil : params
       
+      puts "GEOAPI::Entity.create_at_lat_lng #{params.to_json}"
+      
+      raise ArgumentError, ":lat must be sent as a parameter" unless params.has_key?(:lat)
+      raise ArgumentError, ":lng must be sent as a parameter" unless params.has_key?(:lng)
+      
+      p = GeoAPI::Point.new(params[:lat],params[:lng])
+      
+      params.delete(:lat)
+      params.delete(:lng)
+      
+      self.create(params.merge({:geom=>p}))
+    end
+    
+    def self.find(*args)
+      
+      puts "GEOAPI::Entity.find #{args.to_s}"
+      
+      raise ArgumentError, "First argument must be symbol (:all or :get)" unless args.first.kind_of?(Symbol)
+      
+      params = args.extract_options!
+      params = params == {} ? nil : params
       
       case args.first
         
@@ -77,6 +88,7 @@ module GeoAPI
           results = []
         else
           results = nil
+          
           raise ArgumentError, "Arguments should include a :guid or :id" if params[:guid].blank? && params[:id].blank?
         
           params[:guid] = "user-#{GeoAPI::API_KEY}-#{the_id}" unless params[:id].blank?

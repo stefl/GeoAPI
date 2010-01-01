@@ -2,7 +2,7 @@ module GeoAPI
   class Geometry
     
     class << self
-      attr_accessor :coords, :geometry_type
+      attr_accessor :coords
     end
   
     
@@ -70,13 +70,21 @@ module GeoAPI
       {:type=>self.geometry_type, :coordinates=>self.coords}.to_json
     end
     
+    def initialize attrs
+      @geometry_type = self.class.name
+    end
+    
   end
   
   class Point < GeoAPI::Geometry    
     
-    @geometry_type = "Point"
-    def initialize lat=0, lng=0
-      self.coords = [lat.to_f, lng.to_f]
+    def initialize attrs
+      
+      raise ArgumentError, ":lat (latitude) must be sent as an attribute to the GeoAPI::Point constructor" unless attrs.has_key?[:lat]
+      raise ArgumentError, ":lng (longitude) must be sent as an attribute to the GeoAPI::Point constructor" unless attrs.has_key?[:lng]
+      
+      @coords = [attrs[:lat].to_f, attrs[:lng].to_f]
+      super attrs
     end
     
 
@@ -84,22 +92,21 @@ module GeoAPI
   
   class Multipoint < GeoAPI::Geometry
     
-    @geometry_type = "Multipoint"
   
-    def initialize
+    def initialize attrs
       
       self.coords = []
+      super attrs
     end
     
 
   end
   
   class Polygon < GeoAPI::Geometry
-    
-    @geometry_type = "Polygon"
-    
-    def initialize
-      self.coords = []
+        
+    def initialize attrs
+      self.coords = [] 
+      super attrs
     end
     
 
