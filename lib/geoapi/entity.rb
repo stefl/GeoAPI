@@ -7,11 +7,11 @@ module GeoAPI
     alias_method :geometry, :geom
 
     def latitude
-      geometry.latitude
+      @latitude ||= geometry.latitude unless geometry.blank?
     end
     
     def longitude
-      geometry.longitude
+      @longitude ||= geometry.longitude unless geometry.blank?
     end
     
     alias_method :lat, :latitude 
@@ -94,7 +94,7 @@ module GeoAPI
       
       params.delete(:lat)
       params.delete(:lng)
-      
+
       self.create(params.merge({:geom=>p}))
     end
     
@@ -157,8 +157,10 @@ module GeoAPI
       self.find(:get, :guid=>the_guid)
     end
     
-    def self.search(lat, lng, conditions, options={})
-      puts "GEOAPI::Entity.search #{lat},#{lng} | #{conditions.to_s}"
+    def self.search(conditions, options={})
+      puts "GEOAPI::Entity.search #{conditions.to_s}"
+      
+      raise ArgumentError, ":lat and :lng are required for search" unless conditions.has_key?(:lat) && conditions.has_key?(:lng)
       
       api_key = self.api_key_from_parameters(options)
       
@@ -166,7 +168,7 @@ module GeoAPI
       
       # Accepts all conditions from the API and passes them through - http://docs.geoapi.com/Simple-Search
       
-      response = get("/search", {:timeout=>60, :query=>conditions.merge({:lat=>lat,:lon=>lng,:apikey=>api_key})})
+      response = get("/search", {:timeout=>60, :query=>conditions.merge({:lat=>conditions[:lat],:lon=>conditions[:lng],:apikey=>api_key})})
       
       begin
         
@@ -192,17 +194,23 @@ module GeoAPI
     
     def setup(attrs)
       puts "Setup Entity with attributes: #{attrs.to_json}"
+      api_key = @api_key
+      api_key ||= self.api_key_from_parameters(params)
       
       self.guid = attrs['guid'] if attrs.has_key?('guid')
       self.guid = "user-#{@api_key}-#{attrs['id']}" if attrs.has_key?('id')
       puts "GEOAPI::Entity.setup #{self.guid}"
       self.id = attrs['id'] if attrs.has_key?('id')
+      self.id = GeoAPI::Client.id_from_guid(self.guid,api_key) if self.id.blank?
       self.errors = attrs['error']
       self.name = attrs['name']
+      self.name ||= attrs['meta']['name'] unless attrs['meta'].blank?
       self.entity_type = attrs['type']
       self.shorturl = attrs['shorturl']
+            
+      self.geom = GeoAPI::Geometry.from_hash(attrs['geom']) unless attrs['geom'].blank?
+      self.geom ||= GeoAPI::Geometry.from_hash(attrs['meta']['geom']) unless attrs['meta'].blank?
       
-      self.geom = GeoAPI::Geometry.from_hash(attrs['geom'])
       
       self.views = []
       unless attrs['views'].blank?

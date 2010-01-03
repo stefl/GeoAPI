@@ -40,6 +40,7 @@ module GeoAPI
     end
     
     def self.from_hash hash
+      
       unless hash.blank?
         geom = Geometry.new_from_class_name hash['type']
       
@@ -49,7 +50,7 @@ module GeoAPI
       
           geom.coords = hash['coordinates']
           
-          puts geom
+          puts "Got geometry: #{geom}"
           
           geom
       
@@ -100,7 +101,7 @@ module GeoAPI
       #raise ArgumentError, ":lat (latitude) must be sent as a parameter to the GeoAPI::Point constructor" unless params.has_key?(:lat)
       #raise ArgumentError, ":lng (longitude) must be sent as a parameter to the GeoAPI::Point constructor" unless params.has_key?(:lng)
       
-      self.coords = [params[:lat].to_f, params[:lng].to_f] unless params.blank? || params[:lat].blank?
+      self.coords = [params[:lng].to_f, params[:lat].to_f] unless params.blank? || params[:lat].blank?
       super args
     end
     
