@@ -157,34 +157,6 @@ module GeoAPI
       self.find(:get, :guid=>the_guid)
     end
     
-    def self.search(conditions, options={})
-      puts "GEOAPI::Entity.search #{conditions.to_s}"
-      
-      raise ArgumentError, ":lat and :lng are required for search" unless conditions.has_key?(:lat) && conditions.has_key?(:lng)
-      
-      api_key = self.api_key_from_parameters(options)
-      
-      raise ArgumentError, "An API Key is required" if api_key.blank?
-      
-      # Accepts all conditions from the API and passes them through - http://docs.geoapi.com/Simple-Search
-      
-      response = get("/search", {:timeout=>60, :query=>conditions.merge({:lat=>conditions[:lat],:lon=>conditions[:lng],:apikey=>api_key})})
-      
-      begin
-        
-      rescue
-        raise BadRequest, "There was a problem communicating with the API"
-      end
-      
-      results = []
-      unless response['result'].blank?
-        response['result'].each do |result|
-          results << Entity.new(result)
-        end
-        results.reverse!
-      end
-    end
-    
     
     # Instance methods
     def initialize(attrs)

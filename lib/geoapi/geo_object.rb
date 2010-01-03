@@ -78,6 +78,49 @@ module GeoAPI
       end
     end
     
+    def self.search(conditions, options={})
+      puts "GEOAPI::Entity.search #{conditions.to_s}"
+      
+      raise ArgumentError, ":lat and :lng are required for search" unless conditions.has_key?(:lat) && conditions.has_key?(:lng)
+      
+      api_key = self.api_key_from_parameters(options)
+      
+      raise ArgumentError, "An API Key is required" if api_key.blank?
+      
+      # Accepts all conditions from the API and passes them through - http://docs.geoapi.com/Simple-Search
+      
+      conditions.merge!({:lat=>conditions[:lat],:lon=>conditions[:lng],:apikey=>api_key})
+      conditions.delete(:lng)
+      
+      response = get("/search", {:timeout=>60, :query=>conditions})
+      
+      begin
+        
+      rescue
+        raise BadRequest, "There was a problem communicating with the API"
+      end
+      
+      results = []
+      unless response['result'].blank?
+        response['result'].each do |result|
+          results << self.new(result)
+        end
+        results.reverse!
+      end
+    end
+    
+    def self.find params
+      # Find a given object by location passed as :lat, :lng
+      raise ArgumentError, ":lat must be sent as a parameter" unless params.has_key?(:lat)
+      raise ArgumentError, ":lng must be sent as a parameter" unless params.has_key?(:lng)
+      
+      self.search({:lat=>params[:lat], :lng=>params[:lng],:type=>self.entity_type})
+    end
+    
+    def self.entity_type
+      "user-entity"
+    end
+    
   end
   
 end

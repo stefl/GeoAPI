@@ -21,8 +21,8 @@ Gem::Specification.new do |s|
 		"lib/geoapi/view.rb",
 		"lib/geoapi/user_view.rb",
 		"lib/geoapi/version.rb",
-    "lib/geoapi/client",
-    "lib/geoapi/neighborhood"
+    "lib/geoapi/client.rb",
+    "lib/geoapi/neighborhood.rb"
 	]
   
   s.add_dependency("rest-client",   [">= 0.9"])
